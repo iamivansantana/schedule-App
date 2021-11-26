@@ -1,4 +1,5 @@
-import { fetchSinToken } from '../helpers/fetch';
+import Swal from 'sweetalert2';
+import { fetchConToken, fetchSinToken } from '../helpers/fetch';
 import { types } from '../types/typess';
 
 export const startLogin = (email, password) => {
@@ -16,11 +17,70 @@ export const startLogin = (email, password) => {
 					name: body.name,
 				})
 			);
+		} else {
+			Swal.fire('Error', body.msg, 'error');
 		}
 	};
 };
+
+export const startRegister = (email, password, name) => {
+	return async (dispatch) => {
+		const respuesta = await fetchSinToken(
+			'auth/new',
+			{ email, password, name },
+			'POST'
+		);
+		const body = await respuesta.json();
+
+		if (body.ok) {
+			localStorage.setItem('token', body.token);
+			localStorage.setItem('token-init-date', new Date().getTime());
+
+			dispatch(
+				login({
+					uid: body.uid,
+					name: body.name,
+				})
+			);
+		} else {
+			Swal.fire('Error', body.msg, 'error');
+		}
+	};
+};
+
+export const startChecking = () => {
+	return async (dispatch) => {
+		const respuesta = await fetchConToken('auth/renew');
+		const body = await respuesta.json();
+
+		if (body.ok) {
+			localStorage.setItem('token', body.token);
+			localStorage.setItem('token-init-date', new Date().getTime());
+
+			dispatch(
+				login({
+					uid: body.uid,
+					name: body.name,
+				})
+			);
+		} else {
+			dispatch(checkingFinish());
+		}
+	};
+};
+
+const checkingFinish = () => ({ type: types.authCheckinFinish });
 
 const login = (user) => ({
 	type: types.authLogin,
 	payload: user,
 });
+
+export const startLogOut = () => {
+	return (dispatch) => {
+		localStorage.clear();
+		dispatch(logOut());
+	};
+};
+
+const logOut = () => ({ type: types.authLogout });
