@@ -11,7 +11,9 @@ const NavBar = () => {
 	};
 	return (
 		<div className='navbar navbar-dark bg-dark mb-4'>
-			<span className='navbar-brand'>{name}</span>
+			<span className='navbar-brand' style={{ textTransform: 'capitalize' }}>
+				{name}
+			</span>
 			<button onClick={handleLogOut} className='btn btn-outline-danger'>
 				<i className='fas fa-sign-out-alt'></i>
 				<span> Salir</span>
